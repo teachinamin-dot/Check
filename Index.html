@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>마음건강 출석부</title>
+    <!-- 나눔스퀘어라운드 폰트 & Tailwind CSS CDN -->
+    <link rel="stylesheet" href="https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        insta: {
+                            orange: '#f09433',
+                            red: '#e6683c',
+                            pink: '#dc2743',
+                            purple: '#cc2366',
+                            violet: '#bc1888'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['NanumSquareRound', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @font-face {
+            font-family: 'NanumSquareRound';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        /* 메인 그래디언트 애니메이션 배경 */
+        body {
+            background: #fafafa;
+            color: #262626;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
+            font-family: 'NanumSquareRound', sans-serif;
+        }
+        /* 슬라이더 커스텀 스타일 (네온 발광 효과) */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 10px;
+            background: #EFEFEF;
+            outline: none;
+            transition: box-shadow 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--thumb-color, #ffb700);
+            cursor: pointer;
+            box-shadow: 0 0 12px var(--thumb-color, #ffb700), inset 0 0 0 3px #FFFFFF;
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.25);
+        }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 메인 그래디언트 애니메이션 배경 */
+        body {
+            background: #fafafa;
+            color: #262626;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
+            font-family: 'Pretendard', sans-serif;
+        }
+
+        /* 배경 구체 블러 효과 (인스타그램 오로라 레이어) */
+        .bg-blob-1 {
+            position: fixed;
+            top: -100px;
+            left: -100px;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(240,148,51,0.3) 0%, rgba(230,104,60,0.1) 70%, transparent 100%);
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+            animation: float 12s ease-in-out infinite alternate;
+        }
+
+        .bg-blob-2 {
+            position: fixed;
+            bottom: -120px;
+            right: -100px;
+            width: 360px;
+            height: 360px;
+            background: radial-gradient(circle, rgba(188,24,136,0.25) 0%, rgba(204,35,102,0.1) 70%, transparent 100%);
+            filter: blur(70px);
+            z-index: 0;
+            pointer-events: none;
+            animation: float 15s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 20px) scale(1.1); }
+            100% { transform: translate(-20px, 40px) scale(0.95); }
+        }
+
+        /* 글래스모피즘 & 카드 스타일 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(220, 39, 67, 0.04);
+            border-radius: 32px;
+            width: 100%;
+            max-width: 500px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .insta-text-gradient {
+            background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .insta-bg-gradient {
+            background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+
+        /* 인터랙티브 칩 스타일 */
+        .chip-item {
+            border: 1.5px solid #EFEFEF;
+            background: #FFFFFF;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        .chip-item:hover {
+            border-color: #F8B3CB;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(220, 39, 67, 0.08);
+        }
+
+        .chip-item:active {
+            transform: scale(0.96);
+        }
+
+        .chip-item.active {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 60%, #bc1888 100%);
+            color: #FFFFFF !important;
+            border-color: transparent;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(220, 39, 67, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 감정 아이콘 카드 */
+        .emotion-card {
+            border: 1.5px solid #F0F0F0;
+            background: #FFFFFF;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        .emotion-card:hover {
+            transform: translateY(-3px);
+            border-color: #F8C3D3;
+            box-shadow: 0 8px 20px rgba(240, 148, 51, 0.12);
+        }
+
+        .emotion-card:active {
+            transform: scale(0.95);
+        }
+
+        .emotion-card.active {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 50%, #bc1888 100%);
+            border-color: transparent;
+            color: #FFFFFF;
+            box-shadow: 0 10px 25px rgba(220, 39, 67, 0.32);
+            transform: translateY(-4px);
+        }
+
+        .emotion-card.active .emotion-label {
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+
+        /* 슬라이더 커스텀 스타일 */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 12px;
+            border-radius: 10px;
+            background: #EFEFEF;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--thumb-color, #f5b236);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18), inset 0 0 0 4px #FFFFFF;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.2);
+        }
+
+        /* 버튼 애니메이션 */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(60deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 80%);
+            transform: rotate(30deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+
+        .btn-glow:hover::after {
+            opacity: 1;
+            transform: rotate(30deg) translate(50%, 50%);
+        }
+
+        .btn-glow:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(220, 39, 67, 0.4);
+        }
+
+        .btn-glow:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .btn-glow:disabled {
+            background: #EAEAEA;
+            color: #A0A0A0;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 5글자 전용 확대 슬롯 UI */
+        .char-slot {
+            width: 44px;
+            height: 52px;
+            border-radius: 14px;
+            border: 2px solid #EFEFEF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            background: #FAFAFA;
+            color: #262626;
+            transition: all 0.2s ease;
+        }
+
+        .char-slot.filled {
+            border-color: #bc1888;
+            background: #FFF0F6;
+            color: #bc1888;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(188, 24, 136, 0.12);
+        }
+
+        .char-slot.valid-all {
+            border-color: #10B981;
+            background: #ECFDF5;
+            color: #059669;
+        }
+
+        /* 로딩 스피너 */
+        .spinner {
+            width: 26px;
+            height: 26px;
+            border: 3.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #FFFFFF;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 오로라 레이어 배경 -->
+    <div class="bg-blob-1"></div>
+    <div class="bg-blob-2"></div>
+
+    <main class="glass-card p-7 sm:p-9 my-6">
+        
+        <!-- 상단 헤더 -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2.5">
+                <span class="insta-text-gradient">마음건강 출석부</span> 🌿
+            </h1>
+            <p class="text-sm sm:text-base text-gray-500 font-medium">오늘 하루, 내 마음의 날씨와 기분을 살피어 기록해 주세요</p>
+        </header>
+
+        <!-- [1단계] 비밀번호 로그인 세션 -->
+        <section id="step-login" class="fade-in space-y-6">
+            <div class="bg-gray-50/80 rounded-2xl p-6 border border-gray-100 space-y-4">
+                <label for="password-input" class="block text-sm font-bold text-gray-700 tracking-wider uppercase">
+                    🔒 선생님이 안내해 주신 입장 비밀번호
+                </label>
+                <div class="relative">
+                    <input type="password" id="password-input" placeholder="비밀번호를 입력하세요" autocomplete="off"
+                        class="w-full px-4 py-4 rounded-xl bg-white border border-gray-200 text-base sm:text-lg font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-100 transition-all">
+                </div>
+                <p id="login-error-msg" class="text-sm font-semibold text-rose-500 bg-rose-50 p-3.5 rounded-xl border border-rose-100 hidden"></p>
+            </div>
+
+            <button id="btn-login" class="w-full py-4.5 sm:py-5 rounded-2xl text-white font-extrabold text-lg sm:text-xl btn-glow insta-bg-gradient shadow-lg flex justify-center items-center gap-2">
+                <span>입장하기</span>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </button>
+            
+            <div id="login-spinner" class="hidden text-center py-2">
+                <div class="spinner mx-auto border-t-pink-600 border-gray-200"></div>
+            </div>
+        </section>
+
+        <!-- [2단계] 마음건강 체크 서베이 폼 -->
+        <section id="step-main" class="hidden space-y-8">
+            
+            <!-- 학번 및 이름 -->
+            <div class="space-y-3">
+                <label class="block text-sm sm:text-base font-bold text-gray-800 uppercase tracking-wider">01. 학생 정보</label>
+                <div class="grid grid-cols-2 gap-3.5">
+                    <select id="student-id" class="px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-base sm:text-lg font-bold text-gray-800 focus:outline-none focus:border-pink-500 focus:bg-white transition-all">
+                        <option value="" disabled selected>학번 선택</option>
+                    </select>
+                    <input type="text" id="student-name" placeholder="이름 입력"
+                        class="px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-base sm:text-lg font-bold text-gray-800 focus:outline-none focus:border-pink-500 focus:bg-white transition-all">
+                </div>
+            </div>
+
+            <!-- 마음의 온도 슬라이더 -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <label class="text-sm sm:text-base font-bold text-gray-800 uppercase tracking-wider">02. 마음의 온도 <span class="text-gray-400 font-normal text-xs sm:text-sm">(1~100℃)</span></label>
+                    <div class="flex items-center gap-2 px-3.5 py-1.5 bg-gray-100 rounded-full">
+                        <span id="temp-emoji" class="text-xl sm:text-2xl">☀️</span>
+                        <span id="temp-display" class="text-base sm:text-lg font-black text-amber-500">50℃</span>
+                    </div>
+                </div>
+                <div class="p-5 bg-gray-50/80 rounded-2xl border border-gray-100 space-y-3">
+                    <input type="range" id="temp-range" min="1" max="100" value="50">
+                    <div class="flex justify-between text-xs sm:text-sm font-bold text-gray-400 px-1">
+                        <span>1℃ (차가움)</span>
+                        <span>50℃ (미지근)</span>
+                        <span>100℃ (뜨거움)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 신체 신호 -->
+            <div class="space-y-3">
+                <label class="block text-sm sm:text-base font-bold text-gray-800 uppercase tracking-wider">03. 지금 느껴지는 신체 신호 <span class="text-gray-400 font-normal text-xs sm:text-sm">(1개)</span></label>
+                <div class="flex flex-wrap gap-2.5" id="physical-group">
+                    <!-- JS 다이내믹 칩 생성 -->
+                </div>
+            </div>
+
+            <!-- 감정 단어 -->
+            <div class="space-y-3">
+                <label class="block text-sm sm:text-base font-bold text-gray-800 uppercase tracking-wider">04. 지금 가장 가까운 감정 <span class="text-gray-400 font-normal text-xs sm:text-sm">(1개)</span></label>
+                <div class="grid grid-cols-4 gap-3" id="emotion-group">
+                    <!-- JS 다이내믹 이모지 카드 생성 -->
+                </div>
+            </div>
+
+            <!-- 나를 다독일 방법 (정확히 5글자) -->
+            <div class="space-y-3">
+                <div class="flex justify-between items-baseline">
+                    <label class="text-sm sm:text-base font-bold text-gray-800 uppercase tracking-wider">05. 나를 다독일 한마디</label>
+                    <span id="comfort-status-badge" class="text-xs sm:text-sm font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-md">
+                        공백 제외 5글자
+                    </span>
+                </div>
+                
+                <input type="text" id="comfort-input" placeholder="예: 나는소중해, 토닥토닥해" maxlength="15"
+                    class="w-full px-4 py-3.5 rounded-xl bg-gray-50 border border-gray-200 text-base sm:text-lg font-bold text-gray-800 focus:outline-none focus:border-pink-500 focus:bg-white transition-all">
+                
+                <!-- 시각적 5글자 라이브 뷰어 -->
+                <div class="flex justify-center gap-2.5 pt-1.5" id="char-slots">
+                    <div class="char-slot"></div>
+                    <div class="char-slot"></div>
+                    <div class="char-slot"></div>
+                    <div class="char-slot"></div>
+                    <div class="char-slot"></div>
+                </div>
+            </div>
+
+            <!-- 자기사랑 실천 약속 -->
+            <div class="space-y-3">
+                <label class="block text-sm sm:text-base font-bold text-gray-800 uppercase tracking-wider">06. 오늘의 자기사랑 실천 약속 <span class="text-gray-400 font-normal text-xs sm:text-sm">(1개)</span></label>
+                <div class="flex flex-wrap gap-2.5" id="selflove-group">
+                    <!-- JS 다이내믹 칩 생성 -->
+                </div>
+            </div>
+
+            <!-- Submit 버튼 -->
+            <div class="pt-3">
+                <button id="btn-submit" disabled class="w-full py-4.5 sm:py-5 rounded-2xl text-white font-extrabold text-lg sm:text-xl btn-glow insta-bg-gradient shadow-lg flex justify-center items-center gap-2">
+                    <span>등교하기 🏫</span>
+                </button>
+                <p id="submit-error-msg" class="text-sm text-center font-bold text-rose-500 mt-3 hidden"></p>
+                <div id="submit-spinner" class="hidden text-center py-2">
+                    <div class="spinner mx-auto border-t-pink-600 border-gray-200"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- [3단계] 출석 성공 완료 화면 -->
+        <section id="step-success" class="hidden text-center py-10 space-y-6 fade-in">
+            <div class="w-24 h-24 mx-auto rounded-full bg-pink-100 flex items-center justify-center text-5xl shadow-inner animate-bounce">
+                🎉
+            </div>
+            <div class="space-y-3">
+                <h2 class="text-3xl font-extrabold text-gray-800">출석체크 완료!</h2>
+                <p id="success-desc-text" class="text-base sm:text-lg font-medium text-gray-600 leading-relaxed px-2">
+                    오늘도 나의 소중한 마음을 살펴보았습니다.<br>멋지고 따뜻한 하루 보내세요! ✨
+                </p>
+            </div>
+            <div class="pt-4">
+                <button onclick="location.reload()" class="px-8 py-3.5 rounded-full bg-gray-100 text-gray-700 text-sm sm:text-base font-bold hover:bg-gray-200 transition-all shadow-sm">
+                    새로 작성하기
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // 백엔드 Google Apps Script 웹앱 URL
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwBVeP5Z4pYY5jKykULQhLkY1qZmv9HtdQCnKt3LRNutxsUg5A6wB3b6d6gBNhVtv_sPA/exec";
+
+        // 데이터 항목 정의
+        const PHYSICAL_OPTIONS = ['두통', '어지러움', '소화불량', '근육 긴장', '가슴 두근거림', '특별한 증상 없음', '기타통증'];
+        const EMOTION_OPTIONS = [
+            { emoji: '😊', label: '기쁨' },
+            { emoji: '😢', label: '슬픔' },
+            { emoji: '😠', label: '화남' },
+            { emoji: '😰', label: '불안' },
+            { emoji: '😴', label: '피곤' },
+            { emoji: '😐', label: '무덤덤' },
+            { emoji: '🤩', label: '신남' },
+            { emoji: '😌', label: '평온' }
+        ];
+        const SELFLOVE_OPTIONS = ['충분한 수면', '좋아하는 음악 듣기', '산책하기', '친구와 대화하기', '맛있는 음식 먹기', '혼자만의 시간 갖기'];
+
+        // 상태 변수
+        let currentPassword = "";
+        let selectedPhysical = "";
+        let selectedEmotion = "";
+        let selectedSelfLove = "";
+        let isComfortValid = false;
+
+        // DOM 요소
+        const stepLogin = document.getElementById('step-login');
+        const stepMain = document.getElementById('step-main');
+        const stepSuccess = document.getElementById('step-success');
+
+        const pwInput = document.getElementById('password-input');
+        const btnLogin = document.getElementById('btn-login');
+        const loginErrorMsg = document.getElementById('login-error-msg');
+        const loginSpinner = document.getElementById('login-spinner');
+
+        const studentIdSelect = document.getElementById('student-id');
+        const studentNameInput = document.getElementById('student-name');
+        const tempRange = document.getElementById('temp-range');
+        const tempDisplay = document.getElementById('temp-display');
+        const tempEmoji = document.getElementById('temp-emoji');
+        const comfortInput = document.getElementById('comfort-input');
+        const comfortBadge = document.getElementById('comfort-status-badge');
+        const charSlots = document.querySelectorAll('.char-slot');
+
+        const btnSubmit = document.getElementById('btn-submit');
+        const submitErrorMsg = document.getElementById('submit-error-msg');
+        const submitSpinner = document.getElementById('submit-spinner');
+
+        // 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            initStudentOptions();
+            renderChips('physical-group', PHYSICAL_OPTIONS, (val) => { selectedPhysical = val; checkFormValidity(); });
+            renderEmotions('emotion-group', EMOTION_OPTIONS, (val) => { selectedEmotion = val; checkFormValidity(); });
+            renderChips('selflove-group', SELFLOVE_OPTIONS, (val) => { selectedSelfLove = val; checkFormValidity(); });
+            updateSliderUI(50);
+        });
+
+        // 학번 옵션 렌더링 (1401 ~ 1435)
+        function initStudentOptions() {
+            for (let i = 1401; i <= 1435; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `${i}번`;
+                studentIdSelect.appendChild(opt);
+            }
+        }
+
+        // 일반 칩버튼 렌더링
+        function renderChips(containerId, options, onSelect) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            options.forEach(text => {
+                const btn = document.createElement('div');
+                btn.className = 'chip-item px-4 py-3 rounded-xl text-sm sm:text-base font-bold text-gray-700 cursor-pointer';
+                btn.textContent = text;
+                btn.addEventListener('click', () => {
+                    container.querySelectorAll('.chip-item').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    onSelect(text);
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        // 감정 이모지 카드 렌더링
+        function renderEmotions(containerId, options, onSelect) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            options.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'emotion-card p-3.5 rounded-2xl flex flex-col items-center justify-center gap-1.5 cursor-pointer';
+                card.innerHTML = `
+                    <span class="text-3xl sm:text-4xl">${item.emoji}</span>
+                    <span class="emotion-label text-xs sm:text-sm font-bold text-gray-600">${item.label}</span>
+                `;
+                card.addEventListener('click', () => {
+                    container.querySelectorAll('.emotion-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    onSelect(`${item.emoji} ${item.label}`);
+                });
+                container.appendChild(card);
+            });
+        }
+
+        // 마음의 온도 슬라이더 변경 감지 및 UI 업데이트
+        tempRange.addEventListener('input', (e) => {
+            updateSliderUI(parseInt(e.target.value));
+        });
+
+        function updateSliderUI(val) {
+            tempDisplay.textContent = `${val}℃`;
+            
+            // 퍼센트 계산
+            const percent = (val - 1) / 99 * 100;
+            
+            // 네온 사인의 또렷한 선명도 보간 (Cyan #00f3ff -> Amber Gold #ffb700 -> Hot Magenta #ff0055)
+            let r, g, b;
+            if (val <= 50) {
+                const f = (val - 1) / 49;
+                r = Math.round(0 + f * (255 - 0));
+                g = Math.round(243 + f * (183 - 243));
+                b = Math.round(255 + f * (0 - 255));
+            } else {
+                const f = (val - 50) / 50;
+                r = Math.round(255 + f * (255 - 255));
+                g = Math.round(183 + f * (0 - 183));
+                b = Math.round(0 + f * (85 - 0));
+            }
+            const colorStr = `rgb(${r}, ${g}, ${b})`;
+            
+            let emoji = '☀️';
+            if (val < 35) emoji = '❄️';
+            else if (val <= 65) emoji = '☀️';
+            else emoji = '🔥';
+
+            tempEmoji.textContent = emoji;
+            tempDisplay.style.color = colorStr;
+            // 네온 사인 텍스트 섀도우 효과
+            tempDisplay.style.textShadow = `0 0 12px ${colorStr}, 0 0 24px ${colorStr}`;
+            
+            // 트랙 및 슬라이더 썸 네온 발광 효과
+            tempRange.style.background = `linear-gradient(to right, #00f3ff 0%, ${colorStr} ${percent}%, #EFEFEF ${percent}%)`;
+            tempRange.style.setProperty('--thumb-color', colorStr);
+            tempRange.style.boxShadow = `0 0 15px ${colorStr}88`;
+        }
+
+        // 5글자 입력 검증 및 슬롯 동기화
+        comfortInput.addEventListener('input', () => {
+            const cleanText = comfortInput.value.replace(/\s/g, ''); // 공백 제외
+            const len = cleanText.length;
+
+            // 시각적 5개 슬롯 업데이트
+            charSlots.forEach((slot, idx) => {
+                if (idx < len) {
+                    slot.textContent = cleanText[idx];
+                    slot.classList.add('filled');
+                } else {
+                    slot.textContent = '';
+                    slot.classList.remove('filled', 'valid-all');
+                }
+            });
+
+            if (len === 5) {
+                isComfortValid = true;
+                comfortBadge.textContent = '완료! (5글자)';
+                comfortBadge.className = 'text-xs sm:text-sm font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md';
+                charSlots.forEach(slot => slot.classList.add('valid-all'));
+            } else {
+                isComfortValid = false;
+                comfortBadge.textContent = `공백제외 5글자 (${len}/5)`;
+                comfortBadge.className = 'text-xs sm:text-sm font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-md';
+            }
+
+            checkFormValidity();
+        });
+
+        studentIdSelect.addEventListener('change', checkFormValidity);
+        studentNameInput.addEventListener('input', checkFormValidity);
+
+        // 폼 전체 완료 유효성 검사 -> [등교하기] 버튼 활성화
+        function checkFormValidity() {
+            const hasId = studentIdSelect.value !== "";
+            const hasName = studentNameInput.value.trim() !== "";
+            const isReady = hasId && hasName && selectedPhysical !== "" && selectedEmotion !== "" && isComfortValid && selectedSelfLove !== "";
+
+            btnSubmit.disabled = !isReady;
+        }
+
+        // [1단계 로그인] 비밀번호 검증 서버 전송
+        btnLogin.addEventListener('click', async () => {
+            const pw = pwInput.value.trim();
+            if (!pw) {
+                showLoginError("비밀번호를 입력해 주세요.");
+                return;
+            }
+
+            btnLogin.classList.add('hidden');
+            loginSpinner.classList.remove('hidden');
+            loginErrorMsg.classList.add('hidden');
+
+            try {
+                const res = await fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'verify', password: pw })
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    currentPassword = pw;
+                    stepLogin.classList.add('hidden');
+                    stepMain.classList.remove('hidden');
+                    stepMain.classList.add('fade-in');
+                } else {
+                    showLoginError(result.message || "암호가 올바르지 않습니다.");
+                }
+            } catch (err) {
+                showLoginError("서버와의 연결에 실패했습니다. 다시 시도해 주세요.");
+            } finally {
+                btnLogin.classList.remove('hidden');
+                loginSpinner.classList.add('hidden');
+            }
+        });
+
+        pwInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') btnLogin.click();
+        });
+
+        function showLoginError(msg) {
+            loginErrorMsg.textContent = msg;
+            loginErrorMsg.classList.remove('hidden');
+        }
+
+        // [2단계 서베이 제출] 최종 등록 처리
+        btnSubmit.addEventListener('click', async () => {
+            btnSubmit.classList.add('hidden');
+            submitSpinner.classList.remove('hidden');
+            submitErrorMsg.classList.add('hidden');
+
+            const payload = {
+                action: 'submit',
+                password: currentPassword,
+                studentId: studentIdSelect.value,
+                studentName: studentNameInput.value.trim(),
+                temperature: tempRange.value,
+                physical: selectedPhysical,
+                emotion: selectedEmotion,
+                comfort: comfortInput.value.replace(/\s/g, ''),
+                selfLove: selectedSelfLove
+            };
+
+            try {
+                const res = await fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    stepMain.classList.add('hidden');
+                    stepSuccess.classList.remove('hidden');
+                    if (result.message) {
+                        document.getElementById('success-desc-text').innerText = result.message;
+                    }
+                } else {
+                    submitErrorMsg.textContent = result.message || "제출에 실패하였습니다.";
+                    submitErrorMsg.classList.remove('hidden');
+                    btnSubmit.classList.remove('hidden');
+                }
+            } catch (err) {
+                submitErrorMsg.textContent = "데이터 전송 중 오류가 발생하였습니다.";
+                submitErrorMsg.classList.remove('hidden');
+                btnSubmit.classList.remove('hidden');
+            } finally {
+                submitSpinner.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
